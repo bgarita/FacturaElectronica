@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:tm="http://microsoft.com/wsdl/mime/textMatching/" xmlns:mime="http://schemas.xmlsoap.org/wsdl/mime/" xmlns:tns="http://WebSites/FacturaCostaRica/" xmlns:http="http://schemas.xmlsoap.org/wsdl/http/" xmlns:s="http://www.w3.org/2001/XMLSchema" xmlns:soap12="http://schemas.xmlsoap.org/wsdl/soap12/" targetNamespace="http://WebSites/FacturaCostaRica/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <s:schema elementFormDefault="qualified" targetNamespace="http://WebSites/FacturaCostaRica/">
+      <s:element name="RegistraXMLFactura">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlFactura" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="secuenciaFacturaReferencia" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RegistraXMLFacturaResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RegistraXMLFacturaResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="UserDetails" type="tns:UserDetails" />
+      <s:complexType name="UserDetails">
+        <s:sequence>
+          <s:element minOccurs="0" maxOccurs="1" name="UserName" type="s:string" />
+          <s:element minOccurs="0" maxOccurs="1" name="Password" type="s:string" />
+        </s:sequence>
+        <s:anyAttribute />
+      </s:complexType>
+      <s:element name="RegistraMensajeReceptor">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="xmlMensajeRespuesta" type="s:string" />
+            <s:element minOccurs="0" maxOccurs="1" name="tipoCedulaEmisor" type="s:string" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="RegistraMensajeReceptorResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="RegistraMensajeReceptorResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFacturaEstadoFull">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idFactura" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFacturaEstadoFullResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFacturaEstadoFullResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFacturaEstado">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="1" maxOccurs="1" name="idFactura" type="s:int" />
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+      <s:element name="GetFacturaEstadoResponse">
+        <s:complexType>
+          <s:sequence>
+            <s:element minOccurs="0" maxOccurs="1" name="GetFacturaEstadoResult">
+              <s:complexType mixed="true">
+                <s:sequence>
+                  <s:any />
+                </s:sequence>
+              </s:complexType>
+            </s:element>
+          </s:sequence>
+        </s:complexType>
+      </s:element>
+    </s:schema>
+  </wsdl:types>
+  <wsdl:message name="RegistraXMLFacturaSoapIn">
+    <wsdl:part name="parameters" element="tns:RegistraXMLFactura" />
+  </wsdl:message>
+  <wsdl:message name="RegistraXMLFacturaSoapOut">
+    <wsdl:part name="parameters" element="tns:RegistraXMLFacturaResponse" />
+  </wsdl:message>
+  <wsdl:message name="RegistraXMLFacturaUserDetails">
+    <wsdl:part name="UserDetails" element="tns:UserDetails" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorSoapIn">
+    <wsdl:part name="parameters" element="tns:RegistraMensajeReceptor" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorSoapOut">
+    <wsdl:part name="parameters" element="tns:RegistraMensajeReceptorResponse" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorUserDetails">
+    <wsdl:part name="UserDetails" element="tns:UserDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFacturaEstadoFull" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFacturaEstadoFullResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullUserDetails">
+    <wsdl:part name="UserDetails" element="tns:UserDetails" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoSoapIn">
+    <wsdl:part name="parameters" element="tns:GetFacturaEstado" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoSoapOut">
+    <wsdl:part name="parameters" element="tns:GetFacturaEstadoResponse" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoUserDetails">
+    <wsdl:part name="UserDetails" element="tns:UserDetails" />
+  </wsdl:message>
+  <wsdl:message name="RegistraXMLFacturaHttpGetIn">
+    <wsdl:part name="xmlFactura" type="s:string" />
+    <wsdl:part name="secuenciaFacturaReferencia" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RegistraXMLFacturaHttpGetOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorHttpGetIn">
+    <wsdl:part name="xmlMensajeRespuesta" type="s:string" />
+    <wsdl:part name="tipoCedulaEmisor" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorHttpGetOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullHttpGetIn">
+    <wsdl:part name="idFactura" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullHttpGetOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoHttpGetIn">
+    <wsdl:part name="idFactura" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoHttpGetOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="RegistraXMLFacturaHttpPostIn">
+    <wsdl:part name="xmlFactura" type="s:string" />
+    <wsdl:part name="secuenciaFacturaReferencia" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RegistraXMLFacturaHttpPostOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorHttpPostIn">
+    <wsdl:part name="xmlMensajeRespuesta" type="s:string" />
+    <wsdl:part name="tipoCedulaEmisor" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="RegistraMensajeReceptorHttpPostOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullHttpPostIn">
+    <wsdl:part name="idFactura" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoFullHttpPostOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoHttpPostIn">
+    <wsdl:part name="idFactura" type="s:string" />
+  </wsdl:message>
+  <wsdl:message name="GetFacturaEstadoHttpPostOut">
+    <wsdl:part name="Body" />
+  </wsdl:message>
+  <wsdl:portType name="FacturaSoap">
+    <wsdl:operation name="RegistraXMLFactura">
+      <wsdl:input message="tns:RegistraXMLFacturaSoapIn" />
+      <wsdl:output message="tns:RegistraXMLFacturaSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <wsdl:input message="tns:RegistraMensajeReceptorSoapIn" />
+      <wsdl:output message="tns:RegistraMensajeReceptorSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <wsdl:input message="tns:GetFacturaEstadoFullSoapIn" />
+      <wsdl:output message="tns:GetFacturaEstadoFullSoapOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <wsdl:input message="tns:GetFacturaEstadoSoapIn" />
+      <wsdl:output message="tns:GetFacturaEstadoSoapOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="FacturaHttpGet">
+    <wsdl:operation name="RegistraXMLFactura">
+      <wsdl:input message="tns:RegistraXMLFacturaHttpGetIn" />
+      <wsdl:output message="tns:RegistraXMLFacturaHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <wsdl:input message="tns:RegistraMensajeReceptorHttpGetIn" />
+      <wsdl:output message="tns:RegistraMensajeReceptorHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <wsdl:input message="tns:GetFacturaEstadoFullHttpGetIn" />
+      <wsdl:output message="tns:GetFacturaEstadoFullHttpGetOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <wsdl:input message="tns:GetFacturaEstadoHttpGetIn" />
+      <wsdl:output message="tns:GetFacturaEstadoHttpGetOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:portType name="FacturaHttpPost">
+    <wsdl:operation name="RegistraXMLFactura">
+      <wsdl:input message="tns:RegistraXMLFacturaHttpPostIn" />
+      <wsdl:output message="tns:RegistraXMLFacturaHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <wsdl:input message="tns:RegistraMensajeReceptorHttpPostIn" />
+      <wsdl:output message="tns:RegistraMensajeReceptorHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <wsdl:input message="tns:GetFacturaEstadoFullHttpPostIn" />
+      <wsdl:output message="tns:GetFacturaEstadoFullHttpPostOut" />
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <wsdl:input message="tns:GetFacturaEstadoHttpPostIn" />
+      <wsdl:output message="tns:GetFacturaEstadoHttpPostOut" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="FacturaSoap" type="tns:FacturaSoap">
+    <soap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="RegistraXMLFactura">
+      <soap:operation soapAction="http://WebSites/FacturaCostaRica/RegistraXMLFactura" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:RegistraXMLFacturaUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <soap:operation soapAction="http://WebSites/FacturaCostaRica/RegistraMensajeReceptor" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:RegistraMensajeReceptorUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <soap:operation soapAction="http://WebSites/FacturaCostaRica/GetFacturaEstadoFull" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetFacturaEstadoFullUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <soap:operation soapAction="http://WebSites/FacturaCostaRica/GetFacturaEstado" style="document" />
+      <wsdl:input>
+        <soap:body use="literal" />
+        <soap:header message="tns:GetFacturaEstadoUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="FacturaSoap12" type="tns:FacturaSoap">
+    <soap12:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="RegistraXMLFactura">
+      <soap12:operation soapAction="http://WebSites/FacturaCostaRica/RegistraXMLFactura" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:RegistraXMLFacturaUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <soap12:operation soapAction="http://WebSites/FacturaCostaRica/RegistraMensajeReceptor" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:RegistraMensajeReceptorUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <soap12:operation soapAction="http://WebSites/FacturaCostaRica/GetFacturaEstadoFull" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:GetFacturaEstadoFullUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <soap12:operation soapAction="http://WebSites/FacturaCostaRica/GetFacturaEstado" style="document" />
+      <wsdl:input>
+        <soap12:body use="literal" />
+        <soap12:header message="tns:GetFacturaEstadoUserDetails" part="UserDetails" use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <soap12:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="FacturaHttpGet" type="tns:FacturaHttpGet">
+    <http:binding verb="GET" />
+    <wsdl:operation name="RegistraXMLFactura">
+      <http:operation location="/RegistraXMLFactura" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <http:operation location="/RegistraMensajeReceptor" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <http:operation location="/GetFacturaEstadoFull" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <http:operation location="/GetFacturaEstado" />
+      <wsdl:input>
+        <http:urlEncoded />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:binding name="FacturaHttpPost" type="tns:FacturaHttpPost">
+    <http:binding verb="POST" />
+    <wsdl:operation name="RegistraXMLFactura">
+      <http:operation location="/RegistraXMLFactura" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="RegistraMensajeReceptor">
+      <http:operation location="/RegistraMensajeReceptor" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstadoFull">
+      <http:operation location="/GetFacturaEstadoFull" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="GetFacturaEstado">
+      <http:operation location="/GetFacturaEstado" />
+      <wsdl:input>
+        <mime:content type="application/x-www-form-urlencoded" />
+      </wsdl:input>
+      <wsdl:output>
+        <mime:content part="Body" type="text/xml" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="Factura">
+    <wsdl:port name="FacturaSoap" binding="tns:FacturaSoap">
+      <soap:address location="http://149.28.194.37/FacturaElectronica/Factura.asmx" />
+    </wsdl:port>
+    <wsdl:port name="FacturaSoap12" binding="tns:FacturaSoap12">
+      <soap12:address location="http://149.28.194.37/FacturaElectronica/Factura.asmx" />
+    </wsdl:port>
+    <wsdl:port name="FacturaHttpGet" binding="tns:FacturaHttpGet">
+      <http:address location="http://149.28.194.37/FacturaElectronica/Factura.asmx" />
+    </wsdl:port>
+    <wsdl:port name="FacturaHttpPost" binding="tns:FacturaHttpPost">
+      <http:address location="http://149.28.194.37/FacturaElectronica/Factura.asmx" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
