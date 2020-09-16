@@ -1,0 +1,7 @@
+Ambiente de pruebas La Flor
+usuario: cpj-3-101-178506@stag.comprobanteselectronicos.go.cr
+clave: DY_%O;V&;}_>U[]6zxOY
+
+Ambiente de producción
+usuario: *none*
+clave: *none*

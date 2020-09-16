@@ -8,3 +8,13 @@ C:\C sharp Programs\FacturaElectronica2\ConsoleApp1\bin\Debug\Google.Protobuf.dl
 C:\C sharp Programs\FacturaElectronica2\ConsoleApp1\bin\Debug\MySql.Data.xml
 C:\C sharp Programs\FacturaElectronica2\ConsoleApp1\obj\Debug\EnviarFactura.csproj.CopyComplete
 C:\C sharp Programs\FacturaElectronica2\ConsoleApp1\obj\Debug\EnviarFactura.csprojAssemblyReference.cache
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\obj\Debug\EnviarFactura.csprojAssemblyReference.cache
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\obj\Debug\EnviarFactura.csproj.CoreCompileInputs.cache
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\obj\Debug\EnviarFactura.exe
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\obj\Debug\EnviarFactura.pdb
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\EnviarFactura.exe.config
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\EnviarFactura.exe
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\EnviarFactura.pdb
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\Google.Protobuf.dll
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\MySql.Data.xml
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\obj\Debug\EnviarFactura.csproj.CopyComplete

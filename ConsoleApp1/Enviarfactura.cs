@@ -62,6 +62,19 @@ namespace EnviarFactura
          */
         static void Main(string[] args)
         {
+            /*
+             * Get user and password for testing
+            Testing.Environment env = new Testing.Environment(Testing.Environment.PRUEBAS);
+            Console.WriteLine("Usuario: " + env.GetUsuario());
+            Console.WriteLine("Clave: " + env.GetClave());
+
+            if (args == null || args.Length == 0)
+            {
+                Console.ReadKey();
+                return;
+            }
+            */
+
             // DEBUG
             /*
             args = new string[4];
