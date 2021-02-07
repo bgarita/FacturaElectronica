@@ -1,7 +1,7 @@
-﻿using MySql.Data.MySqlClient;
+﻿using EnviarFactura.Testing;
+using MySql.Data.MySqlClient;
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.IO;
 using System.Xml;
 
 namespace EnviarFactura
@@ -9,11 +9,15 @@ namespace EnviarFactura
     class Enviarfactura
     {
         /*
-         * Debe recibir cuatro valores dentro de args:
+         * Debe recibir cinco valores dentro de args:
          * 1=Nombre del xml, 
-         * 2=Secuencia (documento interno), 
+         * 2=FacturaInterna (documento interno), 
          * 3=Acción (1=Enviar archivo, 2=Consultar estado, 3=Recibir xml, 4=Consultar estado proveedores)
          * 4=TipoDoc documento (FAC, NDB, NCR)
+         * 5=Carpeta donde está el Json que contiene la estructura general en osais para la compañía actual.
+         *   Nota: esta será el home de la compañía actual pero se toma como una sub-carpeta de osais, que 
+         *   desde donde se hace el llamado a este .EXE Ejemplo: si el valor que viene por parámetro es LAFLOR
+         *   entonces la carpeta del Json será osais\LAFLOR y con eso se construye la ruta completa.
          * 
          * Nota1: Si la acción es 2 o 4, entonces el primer valor debe ser la referencia a consultar.
          * Para todos los efectos este valor es el que viene en el campo id_referencia
@@ -21,7 +25,7 @@ namespace EnviarFactura
          * en un archivo que tiene el mismo nombre del xml enviado pero con la extensión txt.
          * En el caso de las los envíos el nombre es la misma referencia.
          * 
-         * Nota2: La secuenca se refiere al número de factura interna y auque puede ir vacío 
+         * Nota2: La secuenca se refiere al número de factura interna y aunque puede ir vacío 
          * este programa no lo aceptará ya que se usará para crear el archivo que registra
          * el Estado_guardado del envío. Este archivo queda conformado con el nombre del xml enviado 
          * pero con la extensión .txt
@@ -31,9 +35,10 @@ namespace EnviarFactura
          * 2=Tipo de cédula del emisor, 
          * 3=3
          * 4=N/A
+         * 5=Carpeta donde está el Json que contiene la estructura general en osais para la compañía actual.
          * 
          * Archivos que genera este programa:
-         * 1.   Error.log 
+         * 1.   ErrorMessage.log 
          *      Este archivo contiene el último error que se haya producido en tiempo de corrida.
          *      Su contenido es la excepción atrapada por el try-catch en la mayoría de los casos.
          * 2.   nnnnn_Err.txt
@@ -60,10 +65,62 @@ namespace EnviarFactura
          *      el archivo nnnnn_Hac.txt + la extensión .xml
          *  
          */
+        private static string CurrentDirectory; // Carpeta desde donde se llama a este programa
+        private static string JsonDir;          // Carpeta que contiene el Json con la estructura completa de carpetas del sistema.
+        private static DirectoryStructure ds;   // Clase que carga y devuelve una instancia de la estructura de carpetas del sistema.
+        private static Dir DIR;                 // Clase que contiene toda la estructura que viene en el Json
+        private static EscribirMensaje Bitacora;// Clase que escribe en una bitácora
+        private static string UserConfig;       // Archivo (ruta completa) donde se guardan los datos de conexión a la base de datos.
+
         static void Main(string[] args)
         {
+            // Obtener el la carpeta desde donde se hizo la llamada a este programa.
+            CurrentDirectory = Directory.GetCurrentDirectory();
+            Console.WriteLine(CurrentDirectory);
+
+            if (args == null || args.Length < 5)
+            {
+                Console.WriteLine("ErrorMessage en el número de parámetros recibidos");
+                return;
+            }
+
+            // Construir la ruta para el Json que contiene la estructura completa de la compañía actual.
+            JsonDir = CurrentDirectory + "\\" + args[4] + "\\";
+            UserConfig = CurrentDirectory + "\\" + args[4] + "\\" + "UserConfig.txt";
+            Console.WriteLine("Json file location: {0}", JsonDir);
+            Console.WriteLine("UserConfig file: {0}", UserConfig);
+
+            // Esta conexión solo se hace para validar que el ejecutable tenga acceso a la base de datos
+            // antes de intentar hacer el envío a Hacienda.  Esto se hace para evitar que se haga un 
+            // envío y no quede registrado en la base de datos.
+            Configuracion Config = new Configuracion(UserConfig);
+            if (!Config.Connected)
+            {
+                Console.WriteLine("Could not connected to server -- " + Config.ErrorMessage);
+            }
+
+            if (Config.Connected)
+            {
+                Console.WriteLine("Connected to server " + Config.Server);
+            }
+            
+
             /*
-             * Get user and password for testing
+            if (1 == 1)
+            {
+                Console.ReadKey();
+                return;
+            }
+            */
+
+            ds = new DirectoryStructure(JsonDir + "DirectoyStructure.js");
+            DIR = ds.Structure;
+
+            // Console.WriteLine("Company dir: {0}", DIR.Company_home);
+            // Console.ReadKey();
+
+            /*
+            Get user and password for testing
             Testing.Environment env = new Testing.Environment(Testing.Environment.PRUEBAS);
             Console.WriteLine("Usuario: " + env.GetUsuario());
             Console.WriteLine("Clave: " + env.GetClave());
@@ -75,20 +132,7 @@ namespace EnviarFactura
             }
             */
 
-            // DEBUG
-            /*
-            args = new string[4];
-            args[0] = "00100001050000000017.xml";
-            args[1] = "01";
-            args[2] = "3";
-            args[3] = "FAC"; // FCO para las facturas de compra
-
-            //Consultar(args);
-            RecibirFactura(args);
-
-            return;
-            */
-
+            
             // El nonbre del archivo a enviar viene por parámetro.
             // Este programa debe estar en la misma carpeta donde
             // se encuentran todos los xml.
@@ -97,16 +141,23 @@ namespace EnviarFactura
 
             Console.WriteLine(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": Validación de parámetros recibidos.");
 
+            Bitacora = new EscribirMensaje();
 
             try
             {
-                EscribirMensaje em = new EscribirMensaje();
+                //string Dir = "xmls\\";
+                //string Err = "errores\\";
+                string Dir = DIR.Xmls + "\\";
+                string Err = DIR.Errores_envio + "\\";
 
-                string Dir = "xmls\\";
-                string Err = "errores\\";
                 string ErrorFile;
 
-                ErrorFile = Dir + Err + "Error.txt";
+                //ErrorFile = Dir + Err + "ErrorMessage.txt";
+                ErrorFile = Err + "ErrorMessage.txt";
+
+                Console.WriteLine("Estructura de carpetas");
+                Console.WriteLine("xmls: {0}", Dir);
+                Console.WriteLine("errores {0}", Err);
 
                 if (args != null && args.Length > 0)
                 {
@@ -130,12 +181,12 @@ namespace EnviarFactura
                 else
                 {
                     Console.WriteLine(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": No se recibió el nombre del xml.");
-                    em.SaveMessage(Hoy.ToString("dd-MM-yyyy") + " --> No se recibió el nombre del xml.", ErrorFile);
+                    Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") + " --> No se recibió el nombre del xml.", ErrorFile);
                     return;
                 }
 
             } catch (Exception ex) {
-                Console.WriteLine(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": Error " + ex);
+                Console.WriteLine(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": ErrorMessage " + ex);
             }
         } // end Main
 
@@ -156,17 +207,25 @@ namespace EnviarFactura
 
         /*
          * Enviar un xml a Hacienda.
-         * En el array debe venir: 1=Nombre del xml, 2=Secuencia, 3=1, 4=TipoDoc (FAC, NDB, NCR, FCO, N/A)
+         * En el array debe venir: 
+         * 0=Nombre del xml, 
+         * 1=FacturaInterna, 
+         * 2=1, 
+         * 3=TipoDoc (FAC, NDB, NCR, FCO, N/A)
+         * 4=Carpeta del Json
          */
         private static void Enviar(string[] args)
         {
             DateTime Hoy = DateTime.Now;
             Console.WriteLine("Inicia proceso: " + Hoy.ToString("dd-MM-yyyy HH:mm:ss"));
 
-            string Dir = "xmls\\";
-            string Err = "errores\\";
+            //string Dir = "xmls\\";
+            //string Err = "errores\\";
+            string Dir = DIR.Xmls + "\\";
+            string Err = DIR.Errores_envio + "\\";
+
             string XmlFile;
-            string Secuencia;
+            string FacturaInterna;
             string ErrorFile;
             string Accion;
             string TipoDoc;
@@ -175,8 +234,10 @@ namespace EnviarFactura
             // Variable para distinguir si el xml es de compras o de ventas.
             string TipoXml; // C=Compras, V=Ventas
 
-            ErrorFile = Dir + Err + "Error.txt";
-            Secuencia = "1";
+            //ErrorFile = Dir + Err + "ErrorMessage.txt";
+            ErrorFile = Err + "ErrorMessage.txt";
+
+            FacturaInterna = "1";
             EscribirMensaje Bitacora = new EscribirMensaje();
 
             Accion = ""; // 1=Enviar factura, 2=Consultar el Estado_guardado.
@@ -192,7 +253,7 @@ namespace EnviarFactura
                 if (args != null && args.Length > 0)
                 {
                     XmlFile = Dir + args[0]; // Nombre del xml
-                    Secuencia = args[1];     // Número de factura interna
+                    FacturaInterna = args[1];// Número de factura interna
                     Accion = args[2];        // En este caso la acción solo puede ser "1"
                     TipoDoc = args[3];       // TipoDoc de documento
                 }
@@ -203,43 +264,47 @@ namespace EnviarFactura
                     return;
                 }
 
-                ErrorFile = Dir + Err + Secuencia + "_Err" + ".txt";
+                //ErrorFile = Dir + Err + FacturaInterna + "_Err" + ".txt";
+                ErrorFile = Err + FacturaInterna + "_Err" + ".txt";
 
 
-                // Si la acción no es 1...
+                // En este método solo se permite el envío, no la consulta.
                 if (Accion != "1")
                 {
                     Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> El código de acción para envío sólo puede ser 1.", ErrorFile);
                     Console.WriteLine(
-                        Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": Error. El tercer parámetro no es un valor aceptado [" + Accion + "]");
+                        Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": ErrorMessage. El tercer parámetro no es un valor aceptado [" + Accion + "]");
                     return;
                 } // end if
 
                 // DEBUG:
-                Console.WriteLine("Factura recibida: " + Secuencia);
+                Console.WriteLine("Factura recibida: " + FacturaInterna);
 
-                Facnume = Int32.Parse(Secuencia);
+                // Paso la variable a un nombre más entendible desde el sistema Osais
+                Facnume = Int32.Parse(FacturaInterna);
                 bool error = false;
 
+                TipoXml = "V";
+                if (string.Equals(TipoDoc, "FCO"))
+                {
+                    TipoXml = "C";
+                }
+                
                 // Bosco modificado 25/06/2019.  Agrego el tipo de documento para facturas de compra (Regimen simplificado)
                 switch (TipoDoc)
                 {
                     case "FAC":
                         Facnd = 0;
-                        TipoXml = "V";
                         break;
                     case "NCR":
                         Facnd = System.Math.Abs(Facnume);
-                        TipoXml = "V";
                         break;
                     case "NDB":
                         Facnd = Facnume * -1;
-                        TipoXml = "V";
                         break;
                     case "FCO":
                         Facnd = 0;
-                        TipoXml = "C";
                         break;
                     default:
                         Facnd = -1;
@@ -254,12 +319,9 @@ namespace EnviarFactura
                     Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> El TipoDoc de documento no viene identificado, no se puede continuar.", ErrorFile);
                     Console.WriteLine(
-                        Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": Error. El TipoDoc de documento no viene identificado, no se puede continuar.");
+                        Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": ErrorMessage. El TipoDoc de documento no viene identificado, no se puede continuar.");
                     return;
                 }
-
-                //XmlFile = "C:\\xmls\\452-.xml"; // Solo debug
-
 
                 // Inicia proceso de envío del xml
                 string txtFile = XmlFile.Substring(0, XmlFile.IndexOf(".")) + ".txt";
@@ -275,7 +337,7 @@ namespace EnviarFactura
                         Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": Enviando archivo [" + XmlFile + "]");
 
                 System.Xml.XmlNode respuesta = 
-                    wsFactura.RegistraXMLFactura(xmlText, Secuencia).SelectSingleNode("Resultado");
+                    wsFactura.RegistraXMLFactura(xmlText, FacturaInterna).SelectSingleNode("Resultado");
 
                 string CodigoRespuesta = respuesta["estado"].InnerText;
                 string referencia = respuesta["id_referencia"].InnerText;
@@ -300,7 +362,7 @@ namespace EnviarFactura
                 }
                 else
                 {
-                    explica_estado = "Error al enviar el XML.";
+                    explica_estado = "ErrorMessage al enviar el XML.";
                 }
 
                 // Cuando la respuesta es negativa no existe la referencia
@@ -317,7 +379,8 @@ namespace EnviarFactura
 
 
                 // Guardar en base de datos el resultado de la consulta.
-                var conn = new Configuracion().GetConnection();
+                // Este método solo hace el UPDATE, el insert lo hace Osais ya que aquí no se cuenta con todos los parámetros.
+                var conn = new Configuracion(UserConfig).GetConnection();
                 conn.Open();
                 string sqlSent =
                     "UPDATE faestadoDocElect " +
@@ -354,17 +417,29 @@ namespace EnviarFactura
 
         /*
          * Consultar un documento electrónico.
-         * En el array debe venir: 1=Factura, 2=Secuencia, 3=(2 o 4), 4=Tipo (FAC, NCR, NDB, FCO)
+         * En el array debe venir: 
+         * 0=Factura, 
+         * 1=FacturaInterna, 
+         * 2=(2 o 4), 
+         * 3=Tipo (FAC, NCR, NDB, FCO)
+         * 4=Carpeta donde está el Jason
          */
         private static void Consultar(string[] args)
         {
             DateTime Hoy = DateTime.Now;
+
             // El nonbre del archivo viene por parámetro.
 
-            string Dir = "xmls\\";
-            string Err = "errores\\";
-            string Firmados = "firmados\\";
-            string Logs = "logs\\";
+            //string Dir = "xmls\\";
+            //string Err = "errores\\";
+            //string Firmados = "firmados\\";
+            //string Logs = "logs\\";
+
+            string Dir = DIR.Xmls + "\\";
+            string Err = DIR.Errores_envio + "\\";
+            string Firmados = DIR.Xmls_firmados + "\\";
+            string Logs = DIR.Logs + "\\";
+
             string XmlFile;
             string TipoXml;
             string Secuencia;
@@ -372,9 +447,11 @@ namespace EnviarFactura
             string Accion;
 
 
-            ErrorFile = Dir + Err + "Error.txt";
+            //ErrorFile = Dir + Err + "ErrorMessage.txt";
+            ErrorFile = Err + "ErrorMessage.txt";
+
             Secuencia = "1";
-            EscribirMensaje em = new EscribirMensaje();
+            // EscribirMensaje Bitacora = new EscribirMensaje();
 
             try
             {
@@ -389,19 +466,20 @@ namespace EnviarFactura
                 else
                 {
                     Console.WriteLine(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": No se recibió el nombre del xml.");
-                    em.SaveMessage(Hoy.ToString("dd-MM-yyyy") + " --> No se recibió el nombre del xml.", ErrorFile);
+                    Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") + " --> No se recibió el nombre del xml.", ErrorFile);
                     return;
                 }
 
-                ErrorFile = Dir + Err + Secuencia + "_Err" + ".txt";
+                //ErrorFile = Dir + Err + Secuencia + "_Err" + ".txt";
+                ErrorFile = Err + Secuencia + "_Err" + ".txt";
 
                 // Si la acción no es 2 o 4...
                 if (Accion != "2" && Accion != "4")
                 {
-                    em.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
+                    Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> El código de acción para consultas sólo puede ser 2 o 4.", ErrorFile);
                     Console.WriteLine(
-                        Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": Error. El tercer parámetro no es un valor aceptado [" + Accion + "]");
+                        Hoy.ToString("dd-MM-yyyy HH:mm:ss") + ": ErrorMessage. El tercer parámetro no es un valor aceptado [" + Accion + "]");
                     return;
                 } // end if
             }
@@ -410,7 +488,7 @@ namespace EnviarFactura
                 Console.WriteLine(
                         Hoy.ToString("dd-MM-yyyy HH:mm:ss") +
                         ": Ocurrió un error en la validación de parámetros [" + ex.Message + "]");
-                em.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
+                Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> " + ex.Message, ErrorFile);
                 return;
             } // end try-catch
@@ -438,7 +516,7 @@ namespace EnviarFactura
             try
             {
                 // Crear la conexión con la base de datos
-                var conn = new Configuracion().GetConnection();
+                var conn = new Configuracion(UserConfig).GetConnection();
                 conn.Open();
                 var command = new MySqlCommand(sqlSent, conn);
                 command.CommandTimeout = 60;
@@ -457,7 +535,7 @@ namespace EnviarFactura
                 Console.WriteLine(
                         Hoy.ToString("dd-MM-yyyy HH:mm:ss") +
                         ": Ocurrió un error [" + ex.Message + "]");
-                em.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
+                Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> " + ex.Message, ErrorFile);
                 return;
             } // end try-catch
@@ -473,7 +551,7 @@ namespace EnviarFactura
             // Si el Estado_guardado es 99 es porque el documento no fue encontrado
             if (Estado_guardado == 99)
             {
-                em.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
+                Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> " + "La referencia " + args[0] + 
                         " no existe en base de datos (estado=99), aún así se hará la consulta al Ministerio de Hacienda.", 
                         ErrorFile);
@@ -522,21 +600,24 @@ namespace EnviarFactura
                     ": El estado reportado por Hacienda es: " + estadoHacienda + " " + explica_estado);
 
                 // Guardar el estado de la consulta
-                string txtFile2 = Dir + Logs + Secuencia + "_Hac" + ".log";
+                //string txtFile2 = Dir + Logs + Secuencia + "_Hac" + ".log";
+                string txtFile2 = Logs + Secuencia + "_Hac" + ".log";
 
                 if (Accion == "4") { // Para los proveedores el nombre termina en P
-                    txtFile2 = Dir + Logs + Secuencia + "_HacP" + ".log";
+                    //txtFile2 = Dir + Logs + Secuencia + "_HacP" + ".log";
+                    txtFile2 = Logs + Secuencia + "_HacP" + ".log";
                 } // end if
 
                 // Si es una factura de compra se debe diferenciar el log
                 if (TipoXml == "FCO")
                 {
-                    txtFile2 = Dir + Logs + Secuencia + "_HacCompras" + ".log";
+                    //txtFile2 = Dir + Logs + Secuencia + "_HacCompras" + ".log";
+                    txtFile2 = Logs + Secuencia + "_HacCompras" + ".log";
                 }
 
                 Console.WriteLine("Log generado: " + txtFile2);
 
-                em.SaveMessage(
+                Bitacora.SaveMessage(
                     "Estado: " + estadoHacienda + " " + explica_estado + "\n" +
                     "Respuesta_ext: " + respuesta_ext + "\n" +
                     "Numero_consecutivo: " + numero_consecutivo + "\n" +
@@ -549,7 +630,8 @@ namespace EnviarFactura
                 string xmlBase64 = xmlresultante["xmlFacturaBase64"].InnerText; //Aquí viene el xml firmado, tal cual se envió a Hacienda
                 string xmlBase64Respuesta = xmlresultante["xmlRespuestaBase64"].InnerText; //Aquí viene el xml que devuelve Hacienda
 
-                string RutaArchivo = Dir + Firmados + numero_consecutivo + "_resp.xml";
+                //string RutaArchivo = Dir + Firmados + numero_consecutivo + "_resp.xml";
+                string RutaArchivo = Firmados + numero_consecutivo + "_resp.xml";
                 XmlDocument xmlDecodificado;
 
                 if (string.IsNullOrEmpty(xmlBase64Respuesta))
@@ -561,9 +643,10 @@ namespace EnviarFactura
                     xmlDecodificado = Base64ToXML(xmlBase64Respuesta);
                     xmlDecodificado.Save(RutaArchivo);
                 } // end if-else
-                
 
-                RutaArchivo = Dir + Firmados + numero_consecutivo + ".xml";
+
+                //RutaArchivo = Dir + Firmados + numero_consecutivo + ".xml";
+                RutaArchivo = Firmados + numero_consecutivo + ".xml";
 
                 if (string.IsNullOrEmpty(xmlBase64))
                 {
@@ -583,8 +666,8 @@ namespace EnviarFactura
                 // porque respuesta_ext tiene la explicación cuando se rechaza un documento.
                 // Crear la conexión con la base de datos
 
-                var conn = new Configuracion().GetConnection();
-                conn = new Configuracion().GetConnection();
+                var conn = new Configuracion(UserConfig).GetConnection();
+                conn = new Configuracion(UserConfig).GetConnection();
                 conn.Open();
                 sqlSent =
                     "UPDATE faestadoDocElect " +
@@ -607,7 +690,7 @@ namespace EnviarFactura
                 Console.WriteLine(
                         Hoy.ToString("dd-MM-yyyy HH:mm:ss") +
                         ": Ocurrió un error [" + ex.Message + "]");
-                em.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
+                Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") +
                         " --> " + ex.Message, ErrorFile);
             }
 
@@ -638,10 +721,12 @@ namespace EnviarFactura
 
             string tipoCedulaEmisor = args[1];
 
-            EscribirMensaje em = new EscribirMensaje();
-            string Dir = SystemHome + "xmls\\";
-            
-            string XmlFile = Dir + "proveedores\\" + args[0];
+            //EscribirMensaje Bitacora = new EscribirMensaje();
+            //string Dir = SystemHome + "xmls\\";
+            string Dir = DIR.Xmls + "\\";
+
+            //string XmlFile = Dir + "proveedores\\" + args[0];
+            string XmlFile = DIR.Xmls_proveedores+ "\\" + args[0];
             string xmlMensajeRespuesta = System.IO.File.ReadAllText(XmlFile);
 
 
@@ -665,7 +750,7 @@ namespace EnviarFactura
             string XMLFecha = XMLFechaI.ToString("yyyy-MM-dd HH:mm:ss");
 
             string logFile = Dir + "proveedores\\" + XMLIDReferencia + ".log";
-            em.SaveMessage(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + "\n" 
+            Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy HH:mm:ss") + "\n" 
                 + "Estado: " + XMLResultado + " " + XMLDescripcion + "\n" 
                 + "Referencia: " + XMLIDReferencia + "\n" 
                 + "Respuesta: " + XMLRespuesta, logFile);

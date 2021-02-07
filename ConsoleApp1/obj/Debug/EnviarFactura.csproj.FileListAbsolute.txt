@@ -18,3 +18,5 @@ C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\EnviarFactura.pdb
 C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\Google.Protobuf.dll
 C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\MySql.Data.xml
 C:\C sharp Programs\FacturaElectronica\ConsoleApp1\obj\Debug\EnviarFactura.csproj.CopyComplete
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\Newtonsoft.Json.dll
+C:\C sharp Programs\FacturaElectronica\ConsoleApp1\bin\Debug\Newtonsoft.Json.xml
