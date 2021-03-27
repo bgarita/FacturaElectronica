@@ -1,0 +1,13 @@
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\FE.exe.config
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\FE.exe
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\FE.pdb
+C:\C sharp Programs\FacturaElectronica\FE\obj\Debug\FE.csprojAssemblyReference.cache
+C:\C sharp Programs\FacturaElectronica\FE\obj\Debug\FE.csproj.CoreCompileInputs.cache
+C:\C sharp Programs\FacturaElectronica\FE\obj\Debug\FE.exe
+C:\C sharp Programs\FacturaElectronica\FE\obj\Debug\FE.pdb
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\Newtonsoft.Json.dll
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\Newtonsoft.Json.xml
+C:\C sharp Programs\FacturaElectronica\FE\obj\Debug\FE.csproj.CopyComplete
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\MySql.Data.dll
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\Google.Protobuf.dll
+C:\C sharp Programs\FacturaElectronica\FE\bin\Debug\MySql.Data.xml
