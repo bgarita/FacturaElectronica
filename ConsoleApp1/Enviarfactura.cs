@@ -715,7 +715,7 @@ namespace EnviarFactura
              * //String SystemHome = "C:\\Java Programs\\osais\\"; // En producción debe quedar vacío
              */
 
-            String SystemHome = ""; // En producción debe quedar vacío
+            //String SystemHome = ""; // En producción debe quedar vacío
             DateTime Hoy = DateTime.Now;
             Console.WriteLine("Inicia proceso de envío de respuesta: " + Hoy.ToString("dd-MM-yyyy HH:mm:ss"));
 
