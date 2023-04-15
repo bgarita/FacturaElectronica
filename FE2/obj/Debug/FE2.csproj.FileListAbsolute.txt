@@ -7,8 +7,70 @@ C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\Newtonsoft.Json.dll
 C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\Google.Protobuf.xml
 C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\MySql.Data.xml
 C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\Newtonsoft.Json.xml
-C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.csprojAssemblyReference.cache
 C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.csproj.CoreCompileInputs.cache
 C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.csproj.CopyComplete
 C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.exe
 C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.pdb
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\BouncyCastle.Crypto.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.Streams.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\K4os.Hash.xxHash.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Buffers.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Memory.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Numerics.Vectors.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\BouncyCastle.Crypto.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\Google.Protobuf.pdb
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.Streams.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\K4os.Hash.xxHash.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Buffers.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Memory.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Numerics.Vectors.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.csproj.AssemblyReference.cache
+C:\C sharp Programs\FacturaElectronica\FE2\obj\Debug\FE2.csproj.SuggestedBindingRedirects.cache
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\MySqlConnector.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Diagnostics.DiagnosticSource.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\MySqlConnector.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Diagnostics.DiagnosticSource.xml
+C:\C sharp Programs\FacturaElectronica\FE2\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\FE2.exe.config
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\FE2.exe
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\FE2.pdb
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\BouncyCastle.Crypto.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\Google.Protobuf.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.Streams.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\K4os.Hash.xxHash.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\MySql.Data.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\MySqlConnector.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\Newtonsoft.Json.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Buffers.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Diagnostics.DiagnosticSource.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Memory.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Numerics.Vectors.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\BouncyCastle.Crypto.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\Google.Protobuf.pdb
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\Google.Protobuf.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\K4os.Compression.LZ4.Streams.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\K4os.Hash.xxHash.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\MySql.Data.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\MySqlConnector.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\Newtonsoft.Json.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Buffers.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Diagnostics.DiagnosticSource.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Memory.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Numerics.Vectors.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml
+C:\InfoT\FacturaElectronica\FE2\bin\Debug\System.Threading.Tasks.Extensions.xml
+C:\InfoT\FacturaElectronica\FE2\obj\Debug\FE2.csproj.AssemblyReference.cache
+C:\InfoT\FacturaElectronica\FE2\obj\Debug\FE2.csproj.SuggestedBindingRedirects.cache
+C:\InfoT\FacturaElectronica\FE2\obj\Debug\FE2.csproj.CoreCompileInputs.cache
+C:\InfoT\FacturaElectronica\FE2\obj\Debug\FE2.csproj.CopyComplete
+C:\InfoT\FacturaElectronica\FE2\obj\Debug\FE2.exe
+C:\InfoT\FacturaElectronica\FE2\obj\Debug\FE2.pdb

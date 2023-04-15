@@ -1,4 +1,6 @@
-﻿using MySql.Data.MySqlClient;
+﻿using Google.Protobuf.WellKnownTypes;
+using MySqlConnector;
+//using MySql.Data.MySqlClient;
 using System;
 
 namespace FE2
@@ -48,13 +50,15 @@ namespace FE2
                         case 1: User = textLine; break;                 // Usuario
                         case 2: Passw = textLine; break;                // Clave
                         case 3: Server = textLine; break;               // Server
-                        case 4: Port = Int16.Parse(textLine); break;    // Puerto
+                        //case 4: Port = Int16.Parse(textLine); break;    // Puerto
+                        case 4: Port = Convert.ToInt32(textLine); break;  // Puerto
                         case 5: DataBase = textLine; break;             // Base de datos
                         case 6: UsuarioCertificado = textLine; break;   // Usuario del certificado
                         case 7: ClaveCertificado = textLine; break;     // Clave del certificado
                         case 8: PinCertificado = textLine; break;       // Pin del certificado
                         case 9: ArchivoCertificado = textLine; break;   // Archivo que contiene el certificado
-                        case 10: EsPrueba = Int16.Parse(textLine); break;            // Ambiente de pruebas o producción
+                        //case 10: EsPrueba = Int16.Parse(textLine); break;            // Ambiente de pruebas o producción
+                        case 10: EsPrueba = Convert.ToInt32(textLine); break;            // Ambiente de pruebas o producción
                         default: break;
                     }
                     line++;

@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿//using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -40,12 +41,24 @@ namespace FE2
 
         static void Main(string[] args)
         {
+            /*
+             * probar esto en LaFlor.
+             * Si no funciona, hay que cambiar el driver de MySQL por uno más adecuado de MariaDB
+             */
+            /*
+            if (doTest()) 
+            {
+                return;
+            }
+           */
             // Obtener el la carpeta desde donde se hizo la llamada a este programa.
             CurrentDirectory = Directory.GetCurrentDirectory();
             Console.WriteLine(CurrentDirectory);
 
-            /*
+            
             // DEBUG - xml ventas
+            // --------------------------------------------------------------------------------
+            /*
             if (args == null || args.Length == 0)
             {
                 args = new string[8];
@@ -59,7 +72,8 @@ namespace FE2
                 args[7] = "02"; // Tipo de cédula del proveedor.  Solo se usa para confirmar xmls
             }
             */
-
+            // --------------------------------------------------------------------------------
+            /*
             // DEBUG - xml compras
             if (args == null || args.Length == 0)
             {
@@ -73,7 +87,8 @@ namespace FE2
                 args[6] = "02"; // Tipo de cédula del receptor.  Solo se usa para confirmar xmls
                 args[7] = "02"; // Tipo de cédula del proveedor.  Solo se usa para confirmar xmls
             }
-
+            // --------------------------------------------------------------------------------
+            */
             Console.WriteLine("Parámetros recibidos:");
             for (int i = 0; i < args.Length; i++)
             {
@@ -132,7 +147,7 @@ namespace FE2
             Config = new Configuracion(UserConfig);
             if (!Config.ConnectedToDatabase)
             {
-                Console.WriteLine("Could not connected to server -- " + Config.ErrorMessage);
+                Console.WriteLine("Could not connect to server -- " + Config.ErrorMessage);
             }
 
             if (Config.ConnectedToDatabase)
@@ -184,14 +199,16 @@ namespace FE2
                     Enviar();
 
                     string RespHac = DIR.Xmls_firmados + "\\" + Facnume + "_resp.xml";      // xml con la respuesta de Hacienda
-                    if (File.Exists(RespHac))
-                    {
-                        return;
-                    }
+                    //if (File.Exists(RespHac))
+                    //{
+                    //    return;
+                    //}
 
                     // Si el proceso de envío no pudo obtener la respuesta de Hacienda, se ejecuta la consulta.
                     Accion = "2";
                     Thread.Sleep(3000); // Se establece un delay de 3 segundos para que Hacienda termine de procesar.
+
+                    Console.WriteLine("\nEjecutando consulta post-envío...");
                     Consultar();
                 }
                 else if ((Accion.Equals("2")) || (Accion.Equals("4"))) // Consultar documento
@@ -215,9 +232,94 @@ namespace FE2
             //Console.ReadKey();
         }
 
+        private static bool doTest()
+        {
+            /*
+             * Cambié el conector. Ahora hay que probarlo en la flor porque localmente funciona bien.
+             * Copiar los archivos de MsqlConnector a la flor y también FE.exe
+             * Ejecutar FE.exe y ver resultados
+             */
+            // Obtener el la carpeta desde donde se hizo la llamada a este programa.
+            CurrentDirectory = Directory.GetCurrentDirectory();
+            Console.WriteLine(CurrentDirectory);
+            //CompanyHome = "C:\\Java Programs\\osais\\laflor"; // Desarrollo local
+            CompanyHome = "C:\\InfoT\\OSAIS\\System\\sai2"; // Producción La Flor
+
+            // Obtener la configuración para la conexión a base de datos y los datos para conectar con Hacienda
+            UserConfig = (CompanyHome.Length > 0 ? CompanyHome : CurrentDirectory) + "\\UserConfig.txt";
+            Config = new Configuracion(UserConfig);
+            if (!Config.ConnectedToDatabase)
+            {
+                Console.WriteLine("Could not connect to server -- " + Config.ErrorMessage);
+            }
+
+            if (Config.ConnectedToDatabase)
+            {
+                Console.WriteLine("Connected to server " + Config.Server);
+            }
+
+            EsPrueba = Config.EsPrueba;
+
+            Console.WriteLine("\nTrabajando en ambiente de {0}\n", (EsPrueba == 1 ? "PRUEBAS" : "PRODUCCION"));
+            Console.WriteLine("\nCreando conexión con la base de datos...");
+            MySqlConnection conn = Config.GetConnection();
+            if (conn == null)
+            {
+                Console.WriteLine("\nFalló la conexión a base de datos.");
+            }
+            try
+            {
+                conn.Open(); // acá se está cayendo
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("\nNo se pudo abrir la conexión. " + ex);
+            }
+
+            Console.ReadKey();
+
+            Console.WriteLine("\nConexión abierta satisfactoriamente.");
+
+            string sqlSent =
+                    "SELECT estado from faestadoDocElect " +
+                    "Where Facnume = @FACNUME " +
+                    "and Facnd = @FACND ";
+
+            Console.WriteLine("\nEstableciendo parámetros SQL...");
+            Console.ReadKey();
+            var command = new MySqlCommand(sqlSent, conn);
+            command.CommandTimeout = 60;
+            command.Parameters.AddWithValue("FACNUME", 1252);
+            command.Parameters.AddWithValue("FACND", 0);
+
+            Console.WriteLine("\nEnviando consulta al servidor de base de datos...");
+            Console.ReadKey();
+            MySqlDataReader dr = command.ExecuteReader(); // Esta instrucción es la que está fallando
+
+            if (!dr.HasRows)
+            {
+                return false;
+            }
+
+            Console.WriteLine("\nDeterminando estado del documento electrónico...");
+            dr.Read();
+
+            int Estado = dr.GetInt32("estado");
+            Console.WriteLine("\nEl estado de esta factura es {0}", Estado);
+
+            dr.Close();
+
+            conn.Close();
+
+            Console.WriteLine("\nProceso de consulta exitoso.");
+            Console.ReadKey();
+
+            return true;
+        }
+
         private static void Consultar()
         {
-            Console.WriteLine("\n" + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + "Inicia proceso de consulta a Hacienda...");
+            Console.WriteLine("\n" + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + " Inicia proceso de consulta a Hacienda...");
             string Firmados = DIR.Xmls_firmados + "\\";
             string Logs = DIR.Logs + "\\";
 
@@ -226,7 +328,7 @@ namespace FE2
             // Log con la respuesta de Hacienda.
             string RespuesaHacienda = Logs + Facnume + "_Hac" + ".log";
 
-            Console.WriteLine("\n" + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + "Validando estado en base de datos...");
+            Console.WriteLine("\n" + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + " Validando estado en base de datos...");
             // Consultar la base de datos para determinar si el xml ya fue aceptado o rechazado.
             if (AceptadoORechazado())
             {
@@ -241,6 +343,8 @@ namespace FE2
 
             XmlNode Resultado = Serv.ConsultarDocumento(ClaveDoc, EsPrueba, Config.UsuarioCertificado, Config.ClaveCertificado);
             string EstadoMovimiento = Resultado["EstadoMovimiento"].InnerText;
+
+            // Tal parece que esta parte no trae toda la información como si lo hace el proceso de envío
             string MensajeHacienda = Resultado["MensajeRespuesta"].InnerText;
 
             /**
@@ -342,7 +446,7 @@ namespace FE2
             conn.Open();
             string sqlSent =
                     "UPDATE faestadoDocElect " +
-                    "   SET estado = @ESTADO, descrip = @DESCRIP, fecha = Now(), referencia = @REF , xmlFirmado =  @XMLF " +
+                    "   SET estado = @ESTADO, descrip = @DESCRIP, fecha = Now(), referencia = @REF, xmlFirmado =  @XMLF " +
                     "Where Facnume = @FACNUME " +
                     "and Facnd = @FACND " +
                     "and tipoxml = @TIPOXML";
@@ -356,9 +460,12 @@ namespace FE2
             command.Parameters.AddWithValue("FACND", Facnd);
             command.Parameters.AddWithValue("TIPOXML", TipoXml);
             command.Parameters.AddWithValue("XMLF", Facnume + ".xml"); // El xml interno y el firmado se llaman igual pero quedan en distintas carpetas.
-            command.ExecuteNonQuery();
+            Int32 records = command.ExecuteNonQuery();
+            
 
             conn.Close();
+
+            Console.WriteLine("Base de datos actualizada: " + records + " registros.");
         } // end Consultar
 
 
@@ -373,8 +480,21 @@ namespace FE2
                 TipoXml = "C";
             }
 
-            var conn = Config.GetConnection();
-            conn.Open();
+            Console.WriteLine("\nCreando conexión con la base de datos...");
+            MySqlConnection conn = Config.GetConnection();
+            if (conn == null)
+            {
+                Console.WriteLine("\nFalló la conexión a base de datos.");
+            }
+            try
+            {
+                conn.Open();
+            } catch(Exception ex)
+            {
+                Console.WriteLine("\nNo se pudo abrir la conexión. " + ex);
+            }
+            
+            Console.WriteLine("\nConexión abierta satisfactoriamente.");
 
             string sqlSent =
                     "SELECT estado from faestadoDocElect " +
@@ -382,19 +502,22 @@ namespace FE2
                     "and Facnd = @FACND " +
                     "and tipoxml = @TIPOXML";
 
+            Console.WriteLine("\nEstableciendo parámetros SQL...");
             var command = new MySqlCommand(sqlSent, conn);
             command.CommandTimeout = 60;
             command.Parameters.AddWithValue("FACNUME", Facnume);
             command.Parameters.AddWithValue("FACND", Facnd);
             command.Parameters.AddWithValue("TIPOXML", TipoXml);
 
-            MySqlDataReader dr = command.ExecuteReader();
+            Console.WriteLine("\nEnviando consulta al servidor de base de datos...");
+            MySqlDataReader dr = command.ExecuteReader(); // Esta instrucción es la que está fallando
 
             if (!dr.HasRows)
             {
                 return false;
             }
 
+            Console.WriteLine("\nDeterminando estado del documento electrónico...");
             dr.Read();
 
             int Estado = dr.GetInt32("estado");
@@ -402,6 +525,8 @@ namespace FE2
             dr.Close();
 
             conn.Close();
+
+            Console.WriteLine("\nProceso de consulta exitoso.");
 
             return AcepRecha;
         }
@@ -530,7 +655,9 @@ namespace FE2
                         "Estado del envío: " + CodigoRespuesta + " " + "\n" + EstadoMovimiento + "\n" +
                         "Referencia: " + referencia + "\n", TxtFile);
 
+                Console.WriteLine("\nCreando conexión con la base de datos...");
                 var conn = Config.GetConnection();
+                Console.WriteLine("\nAbriendo conexión...");
                 conn.Open();
                 string sqlSent =
                         "UPDATE faestadoDocElect " +
@@ -539,6 +666,7 @@ namespace FE2
                         "and Facnd = @FACND " +
                         "and tipoxml = @TIPOXML";
 
+                Console.WriteLine("\nSeteando paraámetros SQL...");
                 var command = new MySqlCommand(sqlSent, conn);
                 command.CommandTimeout = 60;
                 command.Parameters.AddWithValue("ESTADO", CodigoRespuesta);
@@ -548,9 +676,11 @@ namespace FE2
                 command.Parameters.AddWithValue("FACND", Facnd);
                 command.Parameters.AddWithValue("TIPOXML", "V");
                 command.Parameters.AddWithValue("XMLF", Facnume + ".xml"); // El xml interno y el firmado se llaman igual pero quedan en distintas carpetas.
-                command.ExecuteNonQuery();
+                Console.WriteLine("\nEnviando petición al servidor SQL...");
+                Int32 records = command.ExecuteNonQuery();
 
                 conn.Close();
+                Console.WriteLine("\nBase de datos actualizada exitosamente. (" + records + " registros)");
             }
             catch (Exception ex)
             {

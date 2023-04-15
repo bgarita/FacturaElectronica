@@ -1,4 +1,5 @@
-﻿using MySql.Data.MySqlClient;
+﻿//using MySql.Data.MySqlClient;
+using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +28,8 @@ namespace FE2
         // Devuelve un objeto nuevo de conexión cada vez que se invoca
         public MySqlConnection GetConnection()
         {
+            //MySqlConnector conn = new MySqlConnector(connectionString);
+
             return new MySqlConnection(connectionString);
         }
     } // end class
