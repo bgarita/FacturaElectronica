@@ -18,6 +18,7 @@ x64/
 *.vsidx
 .suo
 *.cache
+FE2/obj/*.*
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
