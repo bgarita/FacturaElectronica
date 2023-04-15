@@ -1,5 +1,4 @@
-﻿//using MySql.Data.MySqlClient;
-using MySqlConnector;
+﻿using MySqlConnector;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -41,16 +40,21 @@ namespace FE2
 
         static void Main(string[] args)
         {
+            if (args[0] == "Test")
+            {
+                CurrentDirectory = Directory.GetCurrentDirectory();
+                Console.WriteLine("Línea 1 - Carpeta desde donde se hizo la llamada {0} ", CurrentDirectory);
+                Console.WriteLine("Línea 2 - Número de argumentos recibidos {0} ", args.Length);
+                return;
+            }
+
             /*
-             * probar esto en LaFlor.
-             * Si no funciona, hay que cambiar el driver de MySQL por uno más adecuado de MariaDB
-             */
-            /*
-            if (doTest()) 
+             * Habilitar este código cuando solo se desee probar la conexión
+            if (DoTest())
             {
                 return;
             }
-           */
+            */
             // Obtener el la carpeta desde donde se hizo la llamada a este programa.
             CurrentDirectory = Directory.GetCurrentDirectory();
             Console.WriteLine(CurrentDirectory);
@@ -196,13 +200,15 @@ namespace FE2
 
                 if (Accion.Equals("1")) // Enviar documento xml
                 {
-                    Enviar();
+                    string respuesta = Enviar();
 
                     string RespHac = DIR.Xmls_firmados + "\\" + Facnume + "_resp.xml";      // xml con la respuesta de Hacienda
-                    //if (File.Exists(RespHac))
-                    //{
-                    //    return;
-                    //}
+
+                    // Si ya existe el archivo con la respuesta de Hacienda y el código de respuesta es 4 (Aceptado) o 5 (Rechazado) no hace falta continuar
+                    if (File.Exists(RespHac) && (respuesta == "4" || respuesta == "5"))
+                    {
+                        return;
+                    }
 
                     // Si el proceso de envío no pudo obtener la respuesta de Hacienda, se ejecuta la consulta.
                     Accion = "2";
@@ -232,7 +238,7 @@ namespace FE2
             //Console.ReadKey();
         }
 
-        private static bool doTest()
+        private static bool DoTest()
         {
             /*
              * Cambié el conector. Ahora hay que probarlo en la flor porque localmente funciona bien.
@@ -326,7 +332,7 @@ namespace FE2
             string TipoXml = "V";
 
             // Log con la respuesta de Hacienda.
-            string RespuesaHacienda = Logs + Facnume + "_Hac" + ".log";
+            string LogRespuesaHacienda = Logs + Facnume + "_Hac" + ".log";
 
             Console.WriteLine("\n" + DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + " Validando estado en base de datos...");
             // Consultar la base de datos para determinar si el xml ya fue aceptado o rechazado.
@@ -401,22 +407,23 @@ namespace FE2
             // Para los proveedores el nombre termina en P
             if (Accion == "4")
             { 
-                RespuesaHacienda = Logs + Facnume + "_HacP" + ".log";
+                LogRespuesaHacienda = Logs + Facnume + "_HacP" + ".log";
             } // end if
 
             // Si es una factura de compra se debe diferenciar el log
             if (TipoDoc == "FCO")
             {
-                RespuesaHacienda = Logs + Facnume + "_HacCompras" + ".log";
+                LogRespuesaHacienda = Logs + Facnume + "_HacCompras" + ".log";
                 TipoXml = "C";
             }
 
-            Console.WriteLine("Log generado: " + RespuesaHacienda);
+            Console.WriteLine("Log generado: " + LogRespuesaHacienda);
 
             Bitacora.SaveMessage(
-                "Estado: " + EstadoMovimiento + "\n" +
-                "Respuesta_ext: " + MensajeHacienda + "\n" +
-                "claveHacienda: " + ClaveDoc, RespuesaHacienda);
+                "Estado: " + EstadoMovimiento + " \n" +
+                "Respuesta_ext: " + MensajeHacienda + " \n" +
+                "claveHacienda: " + ClaveDoc + " \n" +
+                "Codigo respuesta: " + CodigoRespuesta, LogRespuesaHacienda);
 
             Console.WriteLine(
                 DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss") + ": Guardando xml firmado y devuelto por Hacienda.");
@@ -454,7 +461,7 @@ namespace FE2
             var command = new MySqlCommand(sqlSent, conn);
             command.CommandTimeout = 60;
             command.Parameters.AddWithValue("ESTADO", CodigoRespuesta);
-            command.Parameters.AddWithValue("DESCRIP", EstadoMovimiento + ":\n " + MensajeHacienda);
+            command.Parameters.AddWithValue("DESCRIP", EstadoMovimiento + ":\n " + MensajeHacienda + " \nclaveHacienda: " + ClaveDoc);
             command.Parameters.AddWithValue("REF", 0);
             command.Parameters.AddWithValue("FACNUME", Facnume);
             command.Parameters.AddWithValue("FACND", Facnd);
@@ -465,7 +472,7 @@ namespace FE2
 
             conn.Close();
 
-            Console.WriteLine("Base de datos actualizada: " + records + " registros.");
+            Console.WriteLine("\nBase de datos actualizada exitosamente. ({0} registros)", records);
         } // end Consultar
 
 
@@ -533,7 +540,7 @@ namespace FE2
 
 
         // Se puede enviar todas las veces que sea necesario.
-        private static void Enviar()
+        private static string Enviar()
         {
             DateTime Hoy = DateTime.Now;
             Console.WriteLine("\nInicia proceso de envío: " + Hoy.ToString("dd-MM-yyyy HH:mm:ss"));
@@ -541,6 +548,7 @@ namespace FE2
             string Err = DIR.Errores_envio + "\\";
 
             string ErrorFile = Err + "ErrorMessage.txt";
+            string CodigoRespuesta = "";
 
             EscribirMensaje Bitacora = new EscribirMensaje();
 
@@ -557,7 +565,7 @@ namespace FE2
                 string RespHac = DIR.Xmls_firmados + "\\" + Facnume + "_resp.xml";      // xml con la respuesta de Hacienda
                 string TxtFile = DIR.Xmls + "\\" + Facnume + ".txt";                    // Guarda solo el estado del envío
 
-                Console.WriteLine("Procesando documento: " + Facnume);
+                Console.WriteLine("Procesando documento: {0}", Facnume);
 
                 // Inicia proceso de envío del xml
                 string txtFile = XmlFile.Substring(0, XmlFile.IndexOf(".")) + ".txt";
@@ -594,8 +602,8 @@ namespace FE2
                 string MensajeRespuesta = Resultado["JsonEnviado"].InnerText;
                 string MensajeRespuestaHacienda = Resultado["MensajeRespuesta"].InnerText;
 
-                Console.WriteLine("Estado movimiento: {0}", EstadoMovimiento);
-                Console.WriteLine("Mensaje respuesta de Hacienda: {0}", MensajeRespuestaHacienda);
+                Console.WriteLine("Estado movimiento: {0} ", EstadoMovimiento);
+                Console.WriteLine("Mensaje respuesta de Hacienda: {0} ", MensajeRespuestaHacienda);
 
                 /**
                 * Los estados de Hacienda son los siguientes: 
@@ -608,7 +616,7 @@ namespace FE2
                 * 6=ERROR
                 * 10=DESCONOCIDO
                 */
-                string CodigoRespuesta = "10"; // Vamos a usar este código para DESCONOCIDO
+                CodigoRespuesta = "10"; // Vamos a usar este código para DESCONOCIDO
 
                 if (EstadoMovimiento == "PRE-REGISTRO")
                 {
@@ -645,7 +653,7 @@ namespace FE2
                 }
 
                 string referencia = "0"; // Esta versión no maneja referencia
-                Console.WriteLine("\nGuardando estado del envío {0}", TxtFile);
+                Console.WriteLine("\nGuardando estado del envío {0} ", TxtFile);
 
                 Bitacora.SaveMessage(
                         Hoy.ToString("dd/MM/yyyy hh:mm:ss") + "\n" +
@@ -680,7 +688,7 @@ namespace FE2
                 Int32 records = command.ExecuteNonQuery();
 
                 conn.Close();
-                Console.WriteLine("\nBase de datos actualizada exitosamente. (" + records + " registros)");
+                Console.WriteLine("\nBase de datos actualizada exitosamente. ({0} registros)", records);
             }
             catch (Exception ex)
             {
@@ -688,6 +696,7 @@ namespace FE2
                 Bitacora.SaveMessage(Hoy.ToString("dd-MM-yyyy") + " --> " + ex.Message, ErrorFile);
             }
 
+            return CodigoRespuesta;
         } // end Enviar
 
         private static XmlDocument DecodeBase64ToXML(string valor)
