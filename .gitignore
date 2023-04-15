@@ -16,6 +16,8 @@ x64/
 *.exe
 *.pdb
 *.vsidx
+.suo
+*.cache
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
